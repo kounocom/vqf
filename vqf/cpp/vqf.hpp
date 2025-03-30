@@ -7,7 +7,7 @@
 
 #include <stddef.h>
 
-// #define VQF_SINGLE_PRECISION
+#define VQF_SINGLE_PRECISION
 // #define VQF_NO_MOTION_BIAS_ESTIMATION
 
 /**

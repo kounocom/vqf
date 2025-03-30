@@ -15,8 +15,8 @@ from libc.string cimport memcpy
 cimport numpy as np
 cimport cython
 
-ctypedef double vqf_real_t
-vqf_real = np.double
+ctypedef float vqf_real_t
+vqf_real = np.single
 
 cdef extern from 'cpp/vqf.hpp':
     cdef struct VQFParams:
