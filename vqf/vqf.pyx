@@ -53,21 +53,21 @@ cdef extern from 'cpp/vqf.hpp':
         bool restDetected
         bool magDistDetected
         vqf_real_t lastAccLp[3]
-        double accLpState[3*2]
+        vqf_real_t accLpState[3*2]
         vqf_real_t lastAccCorrAngularRate
         vqf_real_t kMagInit
         vqf_real_t lastMagDisAngle
         vqf_real_t lastMagCorrAngularRate
         vqf_real_t bias[3]
         vqf_real_t biasP[9]
-        double motionBiasEstRLpState[9*2]
-        double motionBiasEstBiasLpState[2*2]
+        vqf_real_t motionBiasEstRLpState[9*2]
+        vqf_real_t motionBiasEstBiasLpState[2*2]
         vqf_real_t restLastSquaredDeviations[2]
         vqf_real_t restT
         vqf_real_t restLastGyrLp[3]
-        double restGyrLpState[3*2]
+        vqf_real_t restGyrLpState[3*2]
         vqf_real_t restLastAccLp[3]
-        double restAccLpState[3*2]
+        vqf_real_t restAccLpState[3*2]
         vqf_real_t magRefNorm
         vqf_real_t magRefDip
         vqf_real_t magUndisturbedT
@@ -76,27 +76,27 @@ cdef extern from 'cpp/vqf.hpp':
         vqf_real_t magCandidateDip
         vqf_real_t magCandidateT
         vqf_real_t magNormDip[2]
-        double magNormDipLpState[2*2]
+        vqf_real_t magNormDipLpState[2*2]
 
     cdef struct VQFCoefficients:
         vqf_real_t gyrTs
         vqf_real_t accTs
         vqf_real_t magTs
-        double accLpB[3]
-        double accLpA[2]
+        vqf_real_t accLpB[3]
+        vqf_real_t accLpA[2]
         vqf_real_t kMag
         vqf_real_t biasP0
         vqf_real_t biasV
         vqf_real_t biasMotionW
         vqf_real_t biasVerticalW
         vqf_real_t biasRestW
-        double restGyrLpB[3]
-        double restGyrLpA[2]
-        double restAccLpB[3]
-        double restAccLpA[2]
+        vqf_real_t restGyrLpB[3]
+        vqf_real_t restGyrLpA[2]
+        vqf_real_t restAccLpB[3]
+        vqf_real_t restAccLpA[2]
         vqf_real_t kMagRef
-        double magNormDipLpB[3]
-        double magNormDipLpA[2]
+        vqf_real_t magNormDipLpB[3]
+        vqf_real_t magNormDipLpA[2]
 
     cdef cppclass C_VQF 'VQF':
         C_VQF(vqf_real_t gyrTs, vqf_real_t accTs, vqf_real_t magTs) except +
@@ -157,18 +157,18 @@ cdef extern from 'cpp/vqf.hpp':
         @staticmethod
         vqf_real_t gainFromTau(vqf_real_t tau, vqf_real_t Ts)
         @staticmethod
-        void filterCoeffs(vqf_real_t fc, vqf_real_t Ts, double outB[3], double outA[2])
+        void filterCoeffs(vqf_real_t fc, vqf_real_t Ts, vqf_real_t outB[3], vqf_real_t outA[2])
         @staticmethod
-        void filterInitialState(vqf_real_t x0, const double b[3], const double a[2], double out[2])
+        void filterInitialState(vqf_real_t x0, const vqf_real_t b[3], const vqf_real_t a[2], vqf_real_t out[2])
         @staticmethod
-        void filterAdaptStateForCoeffChange(vqf_real_t last_y[], size_t N, const double b_old[3],
-                                            const double a_old[2], const double b_new[3],
-                                            const double a_new[2], double state[])
+        void filterAdaptStateForCoeffChange(vqf_real_t last_y[], size_t N, const vqf_real_t b_old[3],
+                                            const vqf_real_t a_old[2], const vqf_real_t b_new[3],
+                                            const vqf_real_t a_new[2], vqf_real_t state[])
         @staticmethod
-        vqf_real_t filterStep(vqf_real_t x, const double b[3], const double a[2], double state[2])
+        vqf_real_t filterStep(vqf_real_t x, const vqf_real_t b[3], const vqf_real_t a[2], vqf_real_t state[2])
         @staticmethod
-        void filterVec(const vqf_real_t x[], size_t N, vqf_real_t tau, vqf_real_t Ts, const double b[3],
-                       const double a[2], double state[], vqf_real_t out[])
+        void filterVec(const vqf_real_t x[], size_t N, vqf_real_t tau, vqf_real_t Ts, const vqf_real_t b[3],
+                       const vqf_real_t a[2], vqf_real_t state[], vqf_real_t out[])
         @staticmethod
         void matrix3SetToScaledIdentity(vqf_real_t scale, vqf_real_t out[9])
         @staticmethod
@@ -478,7 +478,7 @@ cdef class VQF:
         cdef np.ndarray[bool, ndim=1, mode='c'] restDetected = np.empty(shape=(N,), dtype=np.bool_)
         cdef np.ndarray[bool, ndim=1, mode='c'] magDistDetected = np.empty(shape=(N,), dtype=np.bool_)
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] lastAccLp = np.empty(shape=(N, 3), dtype=vqf_real)
-        cdef np.ndarray[double, ndim=2, mode='c'] accLpState = np.empty(shape=(N, 3*2), dtype=np.float64)
+        cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] accLpState = np.empty(shape=(N, 3*2), dtype=np.float64)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] lastAccCorrAngularRate = np.empty(shape=(N,), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] kMagInit = np.empty(shape=(N,), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] lastMagDisAngle = np.empty(shape=(N,), dtype=vqf_real)
@@ -486,15 +486,15 @@ cdef class VQF:
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] bias = np.empty(shape=(N, 3), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] biasP = np.empty(shape=(N, 9), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] biasSigma = np.empty(shape=(N,), dtype=vqf_real)
-        cdef np.ndarray[double, ndim=2, mode='c'] motionBiasEstRLpState = np.empty(shape=(N, 9*2), dtype=np.float64)
-        cdef np.ndarray[double, ndim=2, mode='c'] motionBiasEstBiasLpState = np.empty(shape=(N, 2*2), dtype=np.float64)
+        cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] motionBiasEstRLpState = np.empty(shape=(N, 9*2), dtype=np.float64)
+        cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] motionBiasEstBiasLpState = np.empty(shape=(N, 2*2), dtype=np.float64)
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] restLastSquaredDeviations = np.empty(shape=(N, 2), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] relativeRestDeviations = np.empty(shape=(N, 2), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] restT = np.empty(shape=(N,), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] restLastGyrLp = np.empty(shape=(N, 3), dtype=vqf_real)
-        cdef np.ndarray[double, ndim=2, mode='c'] restGyrLpState = np.empty(shape=(N, 3*2), dtype=np.float64)
+        cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] restGyrLpState = np.empty(shape=(N, 3*2), dtype=np.float64)
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] restLastAccLp = np.empty(shape=(N, 3), dtype=vqf_real)
-        cdef np.ndarray[double, ndim=2, mode='c'] restAccLpState = np.empty(shape=(N, 3*2), dtype=np.float64)
+        cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] restAccLpState = np.empty(shape=(N, 3*2), dtype=np.float64)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] magRefNorm = np.empty(shape=(N,), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] magRefDip = np.empty(shape=(N,), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] magUndisturbedT = np.empty(shape=(N,), dtype=vqf_real)
@@ -503,7 +503,7 @@ cdef class VQF:
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] magCandidateDip = np.empty(shape=(N,), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] magCandidateT = np.empty(shape=(N,), dtype=vqf_real)
         cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] magNormDip = np.empty(shape=(N, 2), dtype=vqf_real)
-        cdef np.ndarray[double, ndim=2, mode='c'] magNormDipLpState = np.empty(shape=(N, 2*2), dtype=np.float64)
+        cdef np.ndarray[vqf_real_t, ndim=2, mode='c'] magNormDipLpState = np.empty(shape=(N, 2*2), dtype=np.float64)
 
         cdef VQFState state
         cdef int i = 0
@@ -526,7 +526,7 @@ cdef class VQF:
             restDetected[i] = state.restDetected
             magDistDetected[i] = state.magDistDetected
             memcpy(<vqf_real_t*> np.PyArray_DATA(lastAccLp)+3*i, state.lastAccLp, 3*sizeof(vqf_real_t))
-            memcpy(<double*> np.PyArray_DATA(accLpState)+3*2*i, state.accLpState, 3*2*sizeof(double))
+            memcpy(<vqf_real_t*> np.PyArray_DATA(accLpState)+3*2*i, state.accLpState, 3*2*sizeof(vqf_real_t))
             lastAccCorrAngularRate[i] = state.lastAccCorrAngularRate
             kMagInit[i] = state.kMagInit
             lastMagDisAngle[i] = state.lastMagDisAngle
@@ -534,18 +534,18 @@ cdef class VQF:
             memcpy(<vqf_real_t*> np.PyArray_DATA(bias)+3*i, state.bias, 3*sizeof(vqf_real_t))
             memcpy(<vqf_real_t*> np.PyArray_DATA(biasP)+9*i, state.biasP, 9*sizeof(vqf_real_t))
             biasSigma[i] = self.c_obj.getBiasEstimate(NULL)
-            memcpy(<double*> np.PyArray_DATA(motionBiasEstRLpState)+9*2*i, state.motionBiasEstRLpState,
-                   9*2*sizeof(double))
-            memcpy(<double*> np.PyArray_DATA(motionBiasEstBiasLpState)+2*2*i, state.motionBiasEstBiasLpState,
-                   2*2*sizeof(double))
+            memcpy(<vqf_real_t*> np.PyArray_DATA(motionBiasEstRLpState)+9*2*i, state.motionBiasEstRLpState,
+                   9*2*sizeof(vqf_real_t))
+            memcpy(<vqf_real_t*> np.PyArray_DATA(motionBiasEstBiasLpState)+2*2*i, state.motionBiasEstBiasLpState,
+                   2*2*sizeof(vqf_real_t))
             memcpy(<vqf_real_t*> np.PyArray_DATA(restLastSquaredDeviations)+2*i, state.restLastSquaredDeviations,
                    2*sizeof(vqf_real_t))
             self.c_obj.getRelativeRestDeviations((<vqf_real_t *> np.PyArray_DATA(relativeRestDeviations)) + 2*i)
             restT[i] = state.restT
             memcpy(<vqf_real_t*> np.PyArray_DATA(restLastGyrLp)+3*i, state.restLastGyrLp, 3*sizeof(vqf_real_t))
-            memcpy(<double*> np.PyArray_DATA(restGyrLpState)+3*2*i, state.restGyrLpState, 3*2*sizeof(double))
+            memcpy(<vqf_real_t*> np.PyArray_DATA(restGyrLpState)+3*2*i, state.restGyrLpState, 3*2*sizeof(vqf_real_t))
             memcpy(<vqf_real_t*> np.PyArray_DATA(restLastAccLp)+3*i, state.restLastAccLp, 3*sizeof(vqf_real_t))
-            memcpy(<double*> np.PyArray_DATA(restAccLpState)+3*2*i, state.restAccLpState, 3*2*sizeof(double))
+            memcpy(<vqf_real_t*> np.PyArray_DATA(restAccLpState)+3*2*i, state.restAccLpState, 3*2*sizeof(vqf_real_t))
             magRefNorm[i] = state.magRefNorm
             magRefDip[i] = state.magRefDip
             magUndisturbedT[i] = state.magUndisturbedT
@@ -554,7 +554,7 @@ cdef class VQF:
             magCandidateDip[i] = state.magCandidateDip
             magCandidateT[i] = state.magCandidateT
             memcpy(<vqf_real_t*> np.PyArray_DATA(magNormDip)+2*i, state.magNormDip, 2*sizeof(vqf_real_t))
-            memcpy(<double*> np.PyArray_DATA(magNormDipLpState)+2*2*i, state.magNormDipLpState, 2*2*sizeof(double))
+            memcpy(<vqf_real_t*> np.PyArray_DATA(magNormDipLpState)+2*2*i, state.magNormDipLpState, 2*2*sizeof(vqf_real_t))
 
         return dict(
             quat6D=out6D,
@@ -950,15 +950,15 @@ cdef class VQF:
         :return: numerator coefficients b as (3,) numpy array, denominator coefficients a (without :math:`a_0=1`) as
             (2,) numpy array
         """
-        cdef np.ndarray[double, ndim=1, mode='c'] outB = np.empty(shape=(3,), dtype=np.float64)
-        cdef np.ndarray[double, ndim=1, mode='c'] outA = np.empty(shape=(2,), dtype=np.float64)
-        C_VQF.filterCoeffs(<vqf_real_t> tau, <vqf_real_t> Ts, <double*> np.PyArray_DATA(outB),
-                           <double*> np.PyArray_DATA(outA))
+        cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] outB = np.empty(shape=(3,), dtype=np.float64)
+        cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] outA = np.empty(shape=(2,), dtype=np.float64)
+        C_VQF.filterCoeffs(<vqf_real_t> tau, <vqf_real_t> Ts, <vqf_real_t*> np.PyArray_DATA(outB),
+                           <vqf_real_t*> np.PyArray_DATA(outA))
         return outB, outA
 
     @staticmethod
-    def filterInitialState(x0, np.ndarray[double, ndim=1, mode='c'] b not None,
-                           np.ndarray[double, ndim=1, mode='c'] a not None):
+    def filterInitialState(x0, np.ndarray[vqf_real_t, ndim=1, mode='c'] b not None,
+                           np.ndarray[vqf_real_t, ndim=1, mode='c'] a not None):
         r"""Calculates the initial filter state for a given steady-state value.
 
         :param x0: steady state value
@@ -968,18 +968,18 @@ cdef class VQF:
         """
         assert b.shape[0] == 3
         assert a.shape[0] == 2
-        cdef np.ndarray[double, ndim=1, mode='c'] out = np.empty(shape=(2,), dtype=np.float64)
-        C_VQF.filterInitialState(<vqf_real_t> x0, <double*> np.PyArray_DATA(b), <double*> np.PyArray_DATA(a),
-                                 <double*> np.PyArray_DATA(out))
+        cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] out = np.empty(shape=(2,), dtype=np.float64)
+        C_VQF.filterInitialState(<vqf_real_t> x0, <vqf_real_t*> np.PyArray_DATA(b), <vqf_real_t*> np.PyArray_DATA(a),
+                                 <vqf_real_t*> np.PyArray_DATA(out))
         return out
 
     @staticmethod
     def filterAdaptStateForCoeffChange(np.ndarray[vqf_real_t, ndim=1, mode='c'] last_y not None,
-                                       np.ndarray[double, ndim=1, mode='c'] b_old not None,
-                                       np.ndarray[double, ndim=1, mode='c'] a_old not None,
-                                       np.ndarray[double, ndim=1, mode='c'] b_new not None,
-                                       np.ndarray[double, ndim=1, mode='c'] a_new not None,
-                                       np.ndarray[double, ndim=1, mode='c'] state not None):
+                                       np.ndarray[vqf_real_t, ndim=1, mode='c'] b_old not None,
+                                       np.ndarray[vqf_real_t, ndim=1, mode='c'] a_old not None,
+                                       np.ndarray[vqf_real_t, ndim=1, mode='c'] b_new not None,
+                                       np.ndarray[vqf_real_t, ndim=1, mode='c'] a_new not None,
+                                       np.ndarray[vqf_real_t, ndim=1, mode='c'] state not None):
         r"""Adjusts the filter state when changing coefficients.
 
         This function assumes that the filter is currently in a steady state, i.e. the last input values and the last
@@ -1001,14 +1001,14 @@ cdef class VQF:
         assert a_new.shape[0] == 2
         assert state.shape[0] == 2*N
         C_VQF.filterAdaptStateForCoeffChange(<vqf_real_t*> np.PyArray_DATA(last_y), <size_t> N,
-                                             <double*> np.PyArray_DATA(b_old), <double*> np.PyArray_DATA(a_old),
-                                             <double*> np.PyArray_DATA(b_new), <double*> np.PyArray_DATA(a_new),
-                                             <double*> np.PyArray_DATA(state))
+                                             <vqf_real_t*> np.PyArray_DATA(b_old), <vqf_real_t*> np.PyArray_DATA(a_old),
+                                             <vqf_real_t*> np.PyArray_DATA(b_new), <vqf_real_t*> np.PyArray_DATA(a_new),
+                                             <vqf_real_t*> np.PyArray_DATA(state))
 
     @staticmethod
-    def filterStep(x, np.ndarray[double, ndim=1, mode='c'] b not None,
-                   np.ndarray[double, ndim=1, mode='c'] a not None,
-                   np.ndarray[double, ndim=1, mode='c'] state not None):
+    def filterStep(x, np.ndarray[vqf_real_t, ndim=1, mode='c'] b not None,
+                   np.ndarray[vqf_real_t, ndim=1, mode='c'] a not None,
+                   np.ndarray[vqf_real_t, ndim=1, mode='c'] state not None):
         r"""Performs a filter step for a scalar value.
 
         :param x: input value
@@ -1020,14 +1020,14 @@ cdef class VQF:
         assert b.shape[0] == 3
         assert a.shape[0] == 2
         assert state.shape[0] == 2
-        return C_VQF.filterStep(<vqf_real_t> x, <double*> np.PyArray_DATA(b), <double*> np.PyArray_DATA(a),
-                                <double*> np.PyArray_DATA(state))
+        return C_VQF.filterStep(<vqf_real_t> x, <vqf_real_t*> np.PyArray_DATA(b), <vqf_real_t*> np.PyArray_DATA(a),
+                                <vqf_real_t*> np.PyArray_DATA(state))
 
     @staticmethod
-    def filterVec(np.ndarray[double, ndim=1, mode='c'] x not None, tau, Ts,
-                  np.ndarray[double, ndim=1, mode='c'] b not None,
-                  np.ndarray[double, ndim=1, mode='c'] a not None,
-                  np.ndarray[double, ndim=1, mode='c'] state not None):
+    def filterVec(np.ndarray[vqf_real_t, ndim=1, mode='c'] x not None, tau, Ts,
+                  np.ndarray[vqf_real_t, ndim=1, mode='c'] b not None,
+                  np.ndarray[vqf_real_t, ndim=1, mode='c'] a not None,
+                  np.ndarray[vqf_real_t, ndim=1, mode='c'] state not None):
         r"""Performs filter step for vector-valued signal with averaging-based initialization.
 
         During the first :math:`\tau` seconds, the filter output is the mean of the previous samples. At :math:`t=\tau`,
@@ -1049,8 +1049,8 @@ cdef class VQF:
         assert state.shape[0] == 2*N
         cdef np.ndarray[vqf_real_t, ndim=1, mode='c'] out = np.empty(shape=(N,), dtype=vqf_real)
         C_VQF.filterVec(<vqf_real_t*> np.PyArray_DATA(x), <size_t> N, <vqf_real_t> tau, <vqf_real_t> Ts,
-                        <double*> np.PyArray_DATA(b), <double*> np.PyArray_DATA(a),
-                        <double*> np.PyArray_DATA(state), <vqf_real_t*> np.PyArray_DATA(out))
+                        <vqf_real_t*> np.PyArray_DATA(b), <vqf_real_t*> np.PyArray_DATA(a),
+                        <vqf_real_t*> np.PyArray_DATA(state), <vqf_real_t*> np.PyArray_DATA(out))
         return out
 
     @staticmethod
