@@ -44,9 +44,9 @@ void integrateGyr(const vqf_real_t *gyr, const vqf_real_t *bias, size_t N, vqf_r
 
 void lowpassButterFiltfilt(vqf_real_t *accI, size_t N, vqf_real_t Ts, vqf_real_t tau)
 {
-    double b[3]; // check if everything compiles with float
-    double a[3];
-    double state[3*2];
+    vqf_real_t b[3]; // check if everything compiles with float
+    vqf_real_t a[3];
+    vqf_real_t state[3*2];
 
     VQF::filterCoeffs(tau, Ts, b, a);
 
